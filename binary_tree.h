@@ -16,11 +16,11 @@ typedef enum _child {
 
 BOOL        init_bitree(pbitree_t p_root);
 void        destroy_bitree(pbitree_t p_root);
-pbitree_t   create_bitree(void);
+pbitree_t   create_bitree(ElementType element);
 BOOL        clear_bitree(pbitree_t p_root);
 BOOL        is_empty_bitree(const pbitree_t p_tree);
 UINT32      depth_bitree(const pbitree_t p_tree);
-bitree      root_bitree(const pbitree_t p_tree);
+bitree_t    root_bitree(const pbitree_t p_tree);
 ElementType get_value_bitree(const pbitree_t p_tree, bitree_t element);
 BOOL        set_bitree(pbitree_t p_tree, bitree_t element, ElementType element);
 pbitree     parent_bitree(pbitree_t p_tree, bitree_t element);
