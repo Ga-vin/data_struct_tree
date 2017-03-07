@@ -50,6 +50,7 @@ static void __free_node(pbitree_t p_node)
 {
     if ( p_node) {
         free(p_node);
+        p_node = NULL;
     }
 }
 
@@ -91,7 +92,7 @@ void destroy_bitree(pbitree_t p_root)
 /* Function : Create root of the binary tree                                                        */
 /* Input    : element -- Element to be insert the leaf of tree                                      */
 /* Output   : Node of tree to be created                                                            */
-pbitree_t create_bitree(ElementType element)
+pbitree_t create_node_bitree(ElementType element)
 {
     pbitree_t p_tree_node = NULL;
 
@@ -120,8 +121,27 @@ pbitree_t create_bitree(ElementType element)
 /* Output   : TRUE will be returned, or else FALSE                                                  */
 BOOL clear_bitree(pbitree_t p_root)
 {
-    pbitree_t p_temp = p_root;
+    pbitree_t p_temp  = p_root;
+    pbitree_t p_left  = NULL;
+    pbitree_t p_right = NULL;
 
+#ifdef __DEBUG_OTHER    
+    if ( !p_root) {
+        return (TRUE);
+    }
+    
+    p_left  = GET_LEFT(p_root);
+    p_right = GET_RIGHT(p_root);
+
+    GET_LEFT(p_root)  = NULL;
+    GET_RIGHT(p_root) = NULL;
+    free(p_root);
+    p_root            = NULL;
+
+    clear_bitree(p_left);
+    clear_bitree(p_right);
+#endif /* __DEBUG_OTHER */    
+    
     if ( p_root->left_child) {
         clear_bitree(p_root->left_child);
     }
@@ -131,6 +151,7 @@ BOOL clear_bitree(pbitree_t p_root)
     }
 
     __free_node(p_temp);
+    p_temp = NULL;
     return (TRUE);
 }
 
@@ -167,9 +188,9 @@ UINT32 depth_bitree(const pbitree_t p_tree)
 
     depth_left  = depth_bitree(GET_LEFT(p_tree));
     depth_right = depth_bitree(GET_RIGHT(p_tree));
-    depth_root  = (depth_left > depth_right) ? depth_left : depth_right;
+    depth_root  = (depth_left > depth_right) ? (depth_left + 1) : (depth_right + 1);
 
-    return (depth_root + 1);
+    return (depth_root);
 }
 
 /* Name     : root_bitree                                                                           */
@@ -277,3 +298,80 @@ BOOL insert_child_bitree(pbitree_t p_tree, child_e child, pbitree_t p_node)
 
     return (TRUE);
 }
+
+/* Name     : del_child_bitree                                                                      */
+/* Function : Delete left child or right child from the tree                                        */
+/* Input    : p_tree       -- Tree to be deleted
+              child        -- left child or right child
+              p_new_tree   -- specific sub-tree                                                     */
+/* Output   : TRUE will be returned, or else FALSE                                                  */
+BOOL del_child_bitree(pbitree_t p_tree, child_e child, pbitree_t p_new_tree)
+{
+    if ( !p_tree) {
+        return (FALSE);
+    }
+
+    switch (child) {
+
+    case LEFT_CHILD:
+        clear_bitree(GET_LEFT(p_tree));
+        break;
+
+    case RIGHT_CHILD:
+        clear_bitree(GET_RIGHT(p_tree));
+        break;
+
+    default:
+        fprintf(stdout, "[X] invalid child parameter. \n");
+        return (FALSE);
+    }
+
+    return (TRUE);
+}
+
+BOOL pre_order_traverse_bitree(const pbitree_t p_tree, void (*visit)(ElementType element))
+{
+    if ( p_tree) {
+        visit(GET_DATA(p_tree));
+        pre_order_traverse_bitree(GET_LEFT(p_tree), visit);
+        pre_order_traverse_bitree(GET_RIGHT(p_tree), visit);
+
+        return (TRUE);
+    }
+
+    return (FALSE);
+}
+
+BOOL in_order_traverse_bitree(const pbitree_t p_tree, void (*visit)(ElementType element))
+{
+    if ( p_tree) {
+        pre_order_traverse_bitree(GET_LEFT(p_tree), visit);
+        visit(GET_DATA(p_tree));
+        pre_order_traverse_bitree(GET_RIGHT(p_tree), visit);
+
+        return (p_tree);
+    }
+
+    return (FALSE);
+}
+
+BOOL post_order_traverse_bitree(const pbitree_t p_tree, void (*visit)(ElementType element))
+{
+    if ( p_tree) {
+        pre_order_traverse_bitree(GET_LEFT(p_tree), visit);
+        pre_order_traverse_bitree(GET_RIGHT(p_tree), visit);
+        visit(GET_DATA(p_tree));
+
+        return (TRUE);
+    }
+
+    return (FALSE);
+}
+
+
+
+
+
+
+
+

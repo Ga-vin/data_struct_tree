@@ -16,7 +16,7 @@ typedef enum _child {
 
 BOOL        init_bitree(pbitree_t p_root);
 void        destroy_bitree(pbitree_t p_root);
-pbitree_t   create_bitree(ElementType element);
+pbitree_t   create_node_bitree(ElementType element);
 BOOL        clear_bitree(pbitree_t p_root);
 BOOL        is_empty_bitree(const pbitree_t p_tree);
 UINT32      depth_bitree(const pbitree_t p_tree);
@@ -29,7 +29,7 @@ pbitree_t   right_child_bitree(pbitree_t p_tree, pbitree_t element);
 pbitree_t   left_sibling_bitree(pbitree_t p_tree, bitree_t element);
 pbitree_t   right_sibling_bitree(pbitree_t p_tree, pbitree_t element);
 BOOL        insert_child_bitree(pbitree_t p_tree, child_e child, pbitree_t new_tree);
-BOOL        del_child_bitree(pbitree_t p_tree, pbitree_t p_element, child_e child);
+BOOL        del_child_bitree(pbitree_t p_tree, child_e child, pbitree_t p_new_tree);
 BOOL        pre_order_traverse_bitree(const pbitree_t p_tree, void (*visit)(ElementType element));
 BOOL        in_order_traverse_bitree(const pbitree_t p_tree, void (*visit)(ElementType element));
 BOOL        post_order_traverse_bitree(const pbitree_t p_tree, void (*visit)(ElementType element));
