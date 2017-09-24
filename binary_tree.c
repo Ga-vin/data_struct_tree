@@ -121,7 +121,6 @@ pbitree_t create_node_bitree(ElementType element)
 /* Output   : TRUE will be returned, or else FALSE                                                  */
 BOOL clear_bitree(pbitree_t p_root)
 {
-    pbitree_t p_temp  = p_root;
     pbitree_t p_left  = NULL;
     pbitree_t p_right = NULL;
 
@@ -133,11 +132,7 @@ BOOL clear_bitree(pbitree_t p_root)
     p_left  = GET_LEFT(p_root);
     p_right = GET_RIGHT(p_root);
 
-    GET_LEFT(p_root)  = NULL;
-    GET_RIGHT(p_root) = NULL;
-    free(p_root);
-    p_root            = NULL;
-
+    /* Destroy left child tree and right child tree separately */
     clear_bitree(p_left);
     clear_bitree(p_right);
 #endif /* __DEBUG_OTHER */    
@@ -149,9 +144,13 @@ BOOL clear_bitree(pbitree_t p_root)
     if ( p_root->right_child) {
         clear_bitree(p_root->right_child);
     }
-
-    __free_node(p_temp);
-    p_temp = NULL;
+    
+    /* Destroy root node from free first */
+    GET_LEFT(p_root)  = NULL;
+    GET_RIGHT(p_root) = NULL;
+    free(p_root);
+    p_root            = NULL;
+    
     return (TRUE);
 }
 
@@ -169,6 +168,35 @@ BOOL is_empty_bitree(const pbitree_t p_tree)
         return (FALSE);
     } else {
         return (TRUE);
+    }
+}
+
+/* Name     : search_bitree                                                                         */
+/* Function : Search specific node in the tree with equal value                                     */
+/* Input    : p_root -- Tree to be checked
+ *                 item    -- to be found                                                           */
+/* Output   : Pointer to the node has been found, or else NULL                                      */
+pbitree_t search_bitree(pbitree_t p_root, ElementType item)
+{
+    pbitree_t p_temp = NULL;
+
+    if ( !p_root) {
+#ifdef __DEBUG_PRINTF
+        fprintf(stderr, "[x] tree root is null. In %s at line %d for %s. \n",
+                GET_FILE,
+                GET_LINE,
+                GET_FUNC);
+#endif /* __DEBUG_PRINTF */
+
+        return (NULL);
+    }
+
+    if ( GET_DATA(p_root) == item) {
+        return (p_root);
+    } else if ( GET_DATA(p_root) > item) {
+        return (search_bitree(GET_LEFT(p_root), item));
+    } else {
+        return (search_bitree(GET_RIGHT(p_root), item));
     }
 }
 
@@ -262,38 +290,18 @@ pbitree_t right_child_bitree(pbitree_t p_tree, pbitree_t p_node)
               child    -- left child or right child
               p_node   -- specific node of the tree                                                 */
 /* Output   : TRUE will be returned, or else FALSE                                                  */
-BOOL insert_child_bitree(pbitree_t p_tree, child_e child, pbitree_t p_node)
+BOOL insert_child_bitree(pbitree_t p_tree, pbitree_t p_node)
 {
-    if ( !p_tree || !p_node) {
-        return (FALSE);
+    if ( TRUE == is_empty_bitree(p_tree)) {
+        p_tree = p_node;
+
+        return (TRUE);
     }
 
-    switch ( child) {
-
-    case LEFT_CHILD:
-        {
-            pbitree_t p_temp = NULL;
-
-            p_temp = GET_LEFT(p_tree);
-            GET_LEFT(p_node) = p_temp;
-            GET_LEFT(p_tree) = p_node;
-        }
-        break;
-
-    case RIGHT_CHILD:
-        {
-            pbitree_t p_temp  = NULL;
-
-            p_temp = GET_LEFT(p_tree);
-            GET_LEFT(p_node) = p_temp;
-            GET_LEFT(p_tree) = p_node;
-        }
-        break;
-
-    default:
-        fprintf(stderr, "[X] invalid child \n");
-
-        return (FALSE);
+    if ( GET_DATA(p_node) < GET_DATA(p_tree)) {
+        return (insert_child_bitree(GET_LEFT(p_tree), p_node));
+    } else {
+        return (insert_child_bitree(GET_RIGHT(p_tree), p_node));
     }
 
     return (TRUE);
@@ -367,11 +375,3 @@ BOOL post_order_traverse_bitree(const pbitree_t p_tree, void (*visit)(ElementTyp
 
     return (FALSE);
 }
-
-
-
-
-
-
-
-

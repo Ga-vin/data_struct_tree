@@ -29,5 +29,8 @@ int main(int argc, char *argv[])
     fprintf(stdout, "post order traverse binary tree \n");    
     T_post_order_traverse_bitree();
 
+    fprintf(stdout, "destroy binary tree \n");
+    T_destroy_bitree();
+    
     return ;
 }

@@ -43,7 +43,7 @@ $(DIR) :
 	$(MK) $@
 
 $(EXE) : $(OBJ)
-	$(CC) $(CCFLAGS) -o $@ $^ -Map,Wl=$(MAP) 
+	$(CC) $(CCFLAGS) -o $@ $^ -Wl,-Map=$(MAP) 
 $(OBJ_DIR)/%.o : %.c
 	$(CC) $(CCFLAGS) -o $@ -c $< -lc_p
 
