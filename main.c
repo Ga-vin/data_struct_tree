@@ -11,26 +11,41 @@
 
 int main(int argc, char *argv[])
 {
-    fprintf(stdout, "initialize binary tree \n");
     T_init_bitree();
 
-    fprintf(stdout, "is empty binary tree \n");
+    T_is_pbinary_tree_null();
+    
+    T_is_empty_bitree();
+    
+    T_create_binary_tree();
+    
     T_is_empty_bitree();
 
-    fprintf(stdout, "create node for binary tree \n");
-    T_create_node_bitree();
+    T_is_pbinary_tree_null();
 
+    T_depth_bitree();
+    
+#if 1
     fprintf(stdout, "pre order traverse binary tree \n");
     T_pre_order_traverse_bitree();
+#endif
 
+#if 1    
     fprintf(stdout, "in order traverse binary tree \n");    
     T_in_order_traverse_bitree();
+#endif
 
+#if 1    
     fprintf(stdout, "post order traverse binary tree \n");    
     T_post_order_traverse_bitree();
+#endif
 
+    T_insert_new_child_bitree();
+
+#if 0    
     fprintf(stdout, "destroy binary tree \n");
     T_destroy_bitree();
+#endif
     
-    return ;
+    return (0);
 }

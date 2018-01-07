@@ -33,4 +33,8 @@ void T_in_order_traverse_bitree(void);
 
 void T_post_order_traverse_bitree(void);
 
+void T_is_pbinary_tree_null(void);
+
+void T_insert_new_child_bitree(void);
+
 #endif /* BINARY_TREE_TEST_H_ */

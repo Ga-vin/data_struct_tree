@@ -18,6 +18,7 @@
 #include <fcntl.h>
 #include <time.h>
 #include <string.h>
+#include <assert.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -55,26 +56,12 @@ static void __free_node(pbitree_t p_node)
 }
 
 /* Name     : init_bitree                                                                           */
-/* Function : Initialize root of the tree                                                           */
-/* Input    : p_node --> root of tree                                                               */
-/* Output   : TRUE will be returned, or else FALSE                                                  */
-BOOL init_bitree(pbitree_t p_root)
+/* Function : Initialize root of the tree, make root of tree to be NULL  */
+/* Input    : p_node --> root of tree                                                         */
+/* Output   : TRUE will be returned, or else FALSE                                 */
+BOOL init_bitree(pbitree_t *pp_root)
 {
-    p_root = (pbitree_t)malloc(sizeof(bitree_t));
-    if ( !p_root) {
-#ifdef __DEBUG_PRINTF        
-        fprintf(stderr, "[X] malloc space for bitree error. In %s at line %d for %s \n",
-                GET_FILE,
-                GET_LINE,
-                GET_FUNC);
-#endif /* __DEBUG_PRINTF */
-        
-        return (FALSE);
-    }
-
-    MAKE_LEFT_NULL(p_root);
-    MAKE_RIGHT_NULL(p_root);
-    MAKE_DATA_NULL(p_root);
+    *pp_root = NULL;
 
     return (TRUE);
 }
@@ -83,9 +70,9 @@ BOOL init_bitree(pbitree_t p_root)
 /* Function : Destroy the binary tree                                                               */
 /* Input    : p_node --> root of tree                                                               */
 /* Output   : NONE                                                                                  */
-void destroy_bitree(pbitree_t p_root)
+void destroy_bitree(pbitree_t *pp_root)
 {
-    clear_bitree(p_root);
+    clear_bitree(pp_root);
 }
 
 /* Name     : create_bitree                                                                         */
@@ -110,7 +97,8 @@ pbitree_t create_node_bitree(ElementType element)
 
     MAKE_LEFT_NULL(p_tree_node);
     MAKE_RIGHT_NULL(p_tree_node);
-    memcpy(&(p_tree_node->data), &element, sizeof(ElementType));
+    /* memcpy(&(p_tree_node->data), &element, sizeof(ElementType)); */
+    p_tree_node->data = element;
 
     return (p_tree_node);
 }
@@ -119,48 +107,48 @@ pbitree_t create_node_bitree(ElementType element)
 /* Function : Clear all leaives of tree                                                             */
 /* Input    : p_root -- Tree to be cleared                                                          */
 /* Output   : TRUE will be returned, or else FALSE                                                  */
-BOOL clear_bitree(pbitree_t p_root)
+BOOL clear_bitree(pbitree_t *pp_root)
 {
     pbitree_t p_left  = NULL;
     pbitree_t p_right = NULL;
 
 #ifdef __DEBUG_OTHER    
-    if ( !p_root) {
+    if ( !(*pp_root)) {
         return (TRUE);
     }
     
-    p_left  = GET_LEFT(p_root);
-    p_right = GET_RIGHT(p_root);
+    p_left  = GET_LEFT(*pp_root);
+    p_right = GET_RIGHT(*pp_root);
 
     /* Destroy left child tree and right child tree separately */
-    clear_bitree(p_left);
-    clear_bitree(p_right);
+    clear_bitree(pp_left);
+    clear_bitree(pp_right);
 #endif /* __DEBUG_OTHER */    
     
-    if ( p_root->left_child) {
-        clear_bitree(p_root->left_child);
+    if ( (*pp_root)->left_child) {
+        clear_bitree(&((*pp_root)->left_child));
     }
 
-    if ( p_root->right_child) {
-        clear_bitree(p_root->right_child);
+    if ( (*pp_root)->right_child) {
+        clear_bitree(&((*pp_root)->right_child));
     }
     
     /* Destroy root node from free first */
-    GET_LEFT(p_root)  = NULL;
-    GET_RIGHT(p_root) = NULL;
-    free(p_root);
-    p_root            = NULL;
+    GET_LEFT(*pp_root)  = NULL;
+    GET_RIGHT(*pp_root) = NULL;
+    free(*pp_root);
+    *pp_root            = NULL;
     
     return (TRUE);
 }
 
-/* Name     : is_empty_bitree                                                                       */
-/* Function : Check whether the tree is empty                                                       */
-/* Input    : p_root -- Tree to be checked                                                          */
+/* Name     : is_empty_bitree                                                                                    */
+/* Function : Check whether the tree is empty                                                        */
+/* Input    : p_root -- Tree to be checked                                                                  */
 /* Output   : TRUE will be returned, or else FALSE                                                  */
 BOOL is_empty_bitree(const pbitree_t p_tree)
 {
-    if ( !p_tree) {
+    if ( !(p_tree)) {
         return (FALSE);
     }
 
@@ -180,7 +168,7 @@ pbitree_t search_bitree(pbitree_t p_root, ElementType item)
 {
     pbitree_t p_temp = NULL;
 
-    if ( !p_root) {
+    if ( !(p_root)) {
 #ifdef __DEBUG_PRINTF
         fprintf(stderr, "[x] tree root is null. In %s at line %d for %s. \n",
                 GET_FILE,
@@ -210,11 +198,11 @@ UINT32 depth_bitree(const pbitree_t p_tree)
     UINT32 depth_left  = 0;
     UINT32 depth_right = 0;
     
-    if ( !p_tree) {
+    if ( !(p_tree)) {
         return (0);
     }
 
-    depth_left  = depth_bitree(GET_LEFT(p_tree));
+    depth_left   = depth_bitree(GET_LEFT(p_tree));
     depth_right = depth_bitree(GET_RIGHT(p_tree));
     depth_root  = (depth_left > depth_right) ? (depth_left + 1) : (depth_right + 1);
 
@@ -227,6 +215,7 @@ UINT32 depth_bitree(const pbitree_t p_tree)
 /* Output   : Pointer points to root node of tree                                                   */
 pbitree_t root_bitree(const pbitree_t p_tree)
 {
+    assert(p_tree != NULL);
     return (p_tree);
 }
 
@@ -284,6 +273,24 @@ pbitree_t right_child_bitree(pbitree_t p_tree, pbitree_t p_node)
     return (GET_RIGHT(p_node));
 }
 
+pbitree_t set_left_child_bitree(pbitree_t ptree, pbitree_t l_child)
+{
+    assert(ptree != NULL);
+
+    ptree->left_child = l_child;
+
+    return (l_child);
+}
+
+pbitree_t set_right_child_bitree(pbitree_t ptree, pbitree_t r_child)
+{
+    assert(ptree != NULL);
+
+    ptree->right_child = r_child;
+
+    return (r_child);
+}
+
 /* Name     : insert_child_bitree                                                                   */
 /* Function : Insert new child leaf to the tree                                                     */
 /* Input    : p_tree   -- Tree to be checked
@@ -292,6 +299,12 @@ pbitree_t right_child_bitree(pbitree_t p_tree, pbitree_t p_node)
 /* Output   : TRUE will be returned, or else FALSE                                                  */
 BOOL insert_child_bitree(pbitree_t p_tree, pbitree_t p_node)
 {
+    if ( !p_node) {
+        fprintf(stdout, "Node to be inserted is NULL.\n");
+
+        return (FALSE);
+    }
+    
     if ( TRUE == is_empty_bitree(p_tree)) {
         p_tree = p_node;
 
@@ -315,18 +328,18 @@ BOOL insert_child_bitree(pbitree_t p_tree, pbitree_t p_node)
 /* Output   : TRUE will be returned, or else FALSE                                                  */
 BOOL del_child_bitree(pbitree_t p_tree, child_e child, pbitree_t p_new_tree)
 {
-    if ( !p_tree) {
+    if ( !(p_tree)) {
         return (FALSE);
     }
 
     switch (child) {
 
     case LEFT_CHILD:
-        clear_bitree(GET_LEFT(p_tree));
+        clear_bitree(&(GET_LEFT(p_tree)));
         break;
 
     case RIGHT_CHILD:
-        clear_bitree(GET_RIGHT(p_tree));
+        clear_bitree(&(GET_RIGHT(p_tree)));
         break;
 
     default:
@@ -357,7 +370,7 @@ BOOL in_order_traverse_bitree(const pbitree_t p_tree, void (*visit)(ElementType 
         visit(GET_DATA(p_tree));
         pre_order_traverse_bitree(GET_RIGHT(p_tree), visit);
 
-        return (p_tree);
+        return (TRUE);
     }
 
     return (FALSE);
